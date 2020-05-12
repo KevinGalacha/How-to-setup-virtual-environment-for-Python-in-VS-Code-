@@ -1,0 +1,183 @@
+
+https://stackoverflow.com/questions/54106071/how-to-setup-virtual-environment-for-python-in-vs-code
+
+https://stackoverflow.com/questions/18713086/virtualenv-wont-activate-on-windows/18713789#18713789
+
+
+
+How to setup virtual environment for Python in VS Code?
+
+In my project folder I created venv folder.
+
+python -m venv venv
+
+When I in VS Code run command select python interpreter my venv folder is not shown. I went one level up like suggested here but VS Code doesn't see my virtual interpreter.
+
+What did I miss?
+python visual-studio-code
+shareimprove this question
+edited Jan 9 '19 at 8:47
+asked Jan 9 '19 at 8:40
+Hrvoje T
+1,36133 gold badges1616 silver badges2929 bronze badges
+
+
+I almost run into same problem everytime I am working on VS-Code using venv. I follow below steps, hope it helps:
+
+    Go to File > preferences > Settings.
+    Click on Workspace settings.
+    Under Files:Association, you will find Edit in settings.json , click on that.
+
+    Update "python.pythonPath": "Your_venv_path/bin/python" under workspace settings. (For Windows): Update "python.pythonPath": "Your_venv_path/Scripts/python.exe" under workspace settings.
+
+    Restart VSCode incase if it still doesn't show your venv.
+
+UPDATE:
+
+-I have been using vs code for a while now and found an another way to show virtual environments in vs code.
+
+    Go to the parent folder in which venv is there through command prompt.
+    Type code . and Enter. [Working on both windows and linux for me.]
+    That should also show the virtual environments present in that folder.
+
+
+
+    My venv file has Include, Lib and Scripts folders. I updated settings.json, but no luck "python.pythonPath": "PrintPython\\venv\\Scripts\\python". PrintPython is my project file inside Python workspace. venv folder is in PrintPython. – Hrvoje T Jan 9 '19 at 9:52
+    1
+    @HrvojeT; You have to follow these steps in VSCode. – Sam Jan 9 '19 at 9:54
+    Sure, I followed them. No luck. – Hrvoje T Jan 9 '19 at 9:55
+    3
+    Ok I fugured it out. In one workspace folder named Python I added all my other projects. So I would have to have only one venv for workspace folder Python. I removed folder Python from workspace and added each subfolder in Python folder as a workspace project like Project1, Project2 etc. In that Project folder I created venv environment and edited settings.json for workspace with this "python.venvPath": "venv" . Now, for every new project I will create new workspace and inside that folder goes venv folder which will be automatically recognized. – Hrvoje T Jan 9 '19 at 10:16
+    1
+    Yea, you shouldn't have to go to this much trouble to get VS Code to recognize your virtual environment. The folder is right there in the directory you opened VS Code in. The VS Code team should address this if they truly want to support Python. It can't possibly be that hard. – Ray Jun 18 '19 at 15:56
+
+
+I was having the same issue until I worked out that I was trying to make my project directory and the virtual environment one and the same - which isn't correct.
+
+I have a \Code\Python directory where I store all my Python projects. My Python 3 installation is on my Path.
+
+If I want to create a new Python project (Project1) with its own virtual environment, then I do this:
+
+python -m venv Code\Python\Project1\venv
+
+Then, simply opening the folder (Project1) in Visual Studio Code ensures that the correct virtual environment is used.
+
+
+With a newer VS Code version it's quite simple.
+
+Open VS Code in your project's folder.
+
+Then open Python Terminal (Ctrl-Shift-P: Python: Create Terminal)
+
+In the terminal:
+
+python -m venv .venv
+
+you'll then see the following dialog: enter image description here
+
+click Yes
+
+Then Python: Select Interpreter (via Ctrl-Shift-P)
+
+and select the option (in my case towards the bottom)
+
+Python 3.7 (venv) ./venv/Scripts/python.exe
+
+If you see
+
+    Activate.ps1 is not digitally signed. You cannot run this script on the current system.
+
+you'll need to do the following: https://stackoverflow.com/a/18713789/2705777
+
+For more information see: https://code.visualstudio.com/docs/python/environments#_global-virtual-and-conda-environments
+
+I fixed the issue without changing the python path as that did not seem like the right solution for me. The following solution worked for me, hopefully it works for you as well :))
+
+    Open cmd in windows / shell in Linux/Mac.
+
+    Activate your virtualenv (using source activate / activate.bat / activate.ps1 if using power shell)
+
+    C:\Users\<myUserName>\Videos\myFolder>django-project\Scripts\activate.bat
+    (django-project) C:\Users\<myUserName>\Videos\myFolder>
+
+    Navigate to your project directory and open vscode there.
+
+    (django-project) C:\Users\prash\Videos\myFolder\projects>code .
+
+    in VS Code, goto File --> Preferences --> Settings (dont worry you dont need to open the json file)
+
+    In the setting search bar search for virtual / venv and hit enter. You should find the below in the search bar:
+
+    Python: Venv Folders Folders in your home directory to look into for virtual environments (supports pyenv, direnv and virtualenvwrapper by default).
+
+    Add item, and then enter the path of the scripts of your virtuanenv which has the activate file in it. For example in my system, it is:
+
+    C:\Users\<myUserName>\Videos\myFolder\django-project\Scripts\
+
+    Save it and restart VS Code.
+
+    To restart, open cmd again, navigate to your project path and open vs code. (Note that your venv should be activated in cmd before you open vs code from cmd)
+
+    Command to open vs code from cmd:
+
+    code .
+
+How to setup virtualenv in VS code
+
+
+This is an adding to @Sam answer that though is correct is missing the fact that anytime you open a folder in visual studio code, it create a .vscode folder, but those can be multiple, created any time you eventually open a directory. The .vscode folder has JSON objects that content properties such "setting.json", in which one declare the Interpreter to use at that ".vscode" level( refer to this for more clarifications What is a 'workspace' in VS Code?).
+
+{
+   {
+     "python.pythonPath": "VirtualEnPath/bin/python3.6"
+   }
+}
+
+So potentially you could open VS code at another level in the virtual Env, it create another .vscode folder that assume as Python directory those of the global machine and so having such error, and has I experienced has nothing to do if the Virtual Env is activated or not.
+
+This indeed what happened to me, I have indeed a DjangoRESTAPI_GEN folder in which I initially opened the IDE and it did recognize the Virtual Env Python path, the a few days after I opened it at the level where git is, so it did created another .vscode, that picked the global Python Interpreter, causing my lint in the Virtual Environment not been used, and the virtual env interpreter not even showed in "select python interpreter". But as wrote opening the IDE at the level where the .vscode that has the settings.json with correct path, it does.
+
+Once you set the correct path in the setting.json and select the virtual env interpreter, then VS Code will automatically activate the VE in its terminal
+
+
+Many have mentioned the python.pythonPath method.
+
+Another way is adding a envFile in the launch.json like this:
+
+    {
+        "name": "Run",
+        "etc": "etc",
+        "envFile": "${workspaceFolder}/venv"
+    }
+
+
+
+    This is helpful, ${workspaceFolder} -- literally what I want. Don't think absolute path make sense if you are doing workspace setting for virtual environment, which only applies to the project. – Shaung Cheng Dec 19 '19 at 19:13
+
+
+
+Have you activated your environment? Also you could try this: vscode select venv
+
+
+    When I run activate in cmd terminal in VS Code it is activated. However I need to change the interpreter in VS Code gui so my imports are recognized. – Hrvoje T Jan 9 '19 at 9:48
+
+
+
+I had the same problem and it was because PowerShell was not updated. Sometimes Windows preserve version 2.* and I had to manually download and install version 3. After that problem solved and I could use virtual environments very well.
+
+
+    What did PowerShell version 3 add/change that fixed the original problem? – Steve Boyd Mar 20 '19 at 17:09
+
+
+
+I had the same problem and the solution was pretty easy:
+
+    "If you create a new conda environment while VS Code is running, use the Reload Window command to refresh the environment list shown with Python: Select Interpreter; otherwise you may not see the environment there. It might take a short time to appear; if you don't see it at first, wait 15 seconds then try using the command again."
+
+That's written on Vscode site
+
+Note: to Reload Window: ctrl+shift+p in Vscode, then write reload window
+
+
+
+There is a VSCode extension called "Python Auto Venv" that automatically detects and uses your virtual environment if there is one.
